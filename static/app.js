@@ -23,15 +23,30 @@ function addMsg(role, html) {
   return div.querySelector(".body");
 }
 
+// Tarjeta de tarea contraíble: resume la acción y expande el detalle.
 function toolChip(call, result) {
   const el = document.createElement("div");
-  el.className = "toolchip " + (result.ok ? "ok" : "fail");
-  const detail = result.error || result.path || result.command ||
+  el.className = "toolchip task-card " + (result.ok ? "ok" : "fail");
+  const dest = call.path || call.command || call.name || call.url || "";
+  const detail = result.error || result.mapa ||
     (result.tree ? result.tree.slice(0, 40).join("\n") : "") ||
-    (result.stdout || "").slice(0, 300) || JSON.stringify(result).slice(0, 200);
-  el.innerHTML = `<i class="bi bi-wrench"></i> <b>${esc(call.tool)}</b> ` +
-    `<code>${esc(call.path || call.command || "")}</code>` +
-    `<pre class="mb-0 mt-1 small">${esc(String(detail))}</pre>`;
+    result.path || result.command ||
+    (result.stdout || "").slice(0, 300) ||
+    JSON.stringify(result).slice(0, 200);
+  el.innerHTML =
+    `<div class="task-head" role="button" title="expandir/contraer">` +
+    `<i class="bi bi-chevron-right task-arrow"></i>` +
+    `<i class="bi bi-wrench"></i> <b>${esc(call.tool)}</b>` +
+    `<code class="text-truncate">${esc(dest)}</code>` +
+    `<span class="badge ms-auto ${result.ok ? "bg-success-subtle text-success-emphasis" : "bg-danger-subtle text-danger-emphasis"}">${result.ok ? "listo" : "error"}</span>` +
+    `</div>` +
+    `<pre class="task-detail mb-0 mt-1 small d-none">${esc(String(detail))}</pre>`;
+  el.querySelector(".task-head").onclick = () => {
+    const open = el.classList.toggle("open");
+    el.querySelector(".task-detail").classList.toggle("d-none", !open);
+    el.querySelector(".task-arrow").className =
+      "bi task-arrow " + (open ? "bi-chevron-down" : "bi-chevron-right");
+  };
   return el;
 }
 
@@ -416,6 +431,7 @@ loadStatus();
 loadPrefs().then(async () => {
   wireGenPrefs();
   if (typeof loadBackends === "function") { await loadBackends(); wireBackendSelect(); }
+  if (typeof wireMejora === "function") wireMejora();
   loadModels();
   if (_prefs.hwinfo) { try { hwCache = JSON.parse(_prefs.hwinfo); } catch {} }
   restoreEditor();

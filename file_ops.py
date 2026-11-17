@@ -73,6 +73,11 @@ def run_tool(call, root_mode=False):
             path = call.get("path", ".")
             target = _resolve(path, root_mode)
             return {"ok": True, "tree": _tree(target)}
+        if tool == "project_map":
+            import memoria
+
+            target = _resolve(call.get("path", "."), root_mode)
+            return {"ok": True, "mapa": memoria.digest(target, cap=6000)}
         if tool == "read_file":
             target = _resolve(call["path"], root_mode)
             with open(target, "rb") as f:
@@ -175,6 +180,9 @@ TOOLS_DOC = (
     "Puedes actuar sobre archivos emitiendo bloques ```tool con un JSON por línea. "
     "Herramientas: "
     'list_files {"tool":"list_files","path":"."} ; '
+    'project_map {"tool":"project_map","path":"."} (mapa del proyecto: '
+    "conteos, estructura y firmas por archivo; ÚSALO PRIMERO en revisiones "
+    "o análisis profundos antes de leer archivos) ; "
     'read_file {"tool":"read_file","path":"a.py"} ; '
     'write_file {"tool":"write_file","path":"a.py","content":"..."} (crea carpetas solas) ; '
     'mkdir {"tool":"mkdir","path":"src/"} ; '
@@ -188,6 +196,11 @@ TOOLS_DOC = (
     'save_template {"tool":"save_template","name":"...","description":"...","content":"..."} ; '
     'load_template {"tool":"load_template","name":"..."} ; '
     'list_templates {"tool":"list_templates"} (plantillas reutilizables en SQLite) ; '
+    "Modo de trabajo inteligente: ante 'analiza/revisa el proyecto' usa "
+    "project_map primero y luego lee SOLO los archivos relevantes en un solo "
+    "bloque tool. Si una petición es ambigua (varias barras, varios archivos "
+    "posibles), pregunta cuál antes de actuar. Puedes emitir varias "
+    "herramientas en el mismo bloque para trabajar varios archivos a la vez. ; "
     'new_project {"tool":"new_project","name":"mi-app"} (crea proyecto Flask '
     "completo en workspace/projects/<name> con la mega plantilla: venv, reglas, "
     "módulos y start.bat). "

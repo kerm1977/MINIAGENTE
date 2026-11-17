@@ -31,6 +31,8 @@
       <ul class="dropdown-menu dropdown-menu-end">
         <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#apModal"><i class="bi bi-palette"></i> Apariencia</button></li>
         <li><button class="dropdown-item" onclick="toggleEditor()"><i class="bi bi-layout-split"></i> Editor (split)</button></li>
+        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#errModal"><i class="bi bi-terminal"></i> Consola <span id="errBadge" class="badge bg-danger d-none"></span></button></li>
+        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#mejoraModal"><i class="bi bi-robot"></i> Mejorar agente</button></li>
         <li><button class="dropdown-item" onclick="exportJSON()"><i class="bi bi-box-arrow-down"></i> Exportar JSON</button></li>
         <li><button class="dropdown-item" onclick="document.getElementById('impJson').click()"><i class="bi bi-box-arrow-up"></i> Importar JSON</button></li>
       </ul>
@@ -384,8 +386,40 @@
   </div>
 </div>
 <script src="/static/vendor/bootstrap.bundle.min.js"></script>
+<div class="modal fade" id="errModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title"><i class="bi bi-terminal"></i> Consola de errores</h6>
+        <button class="btn btn-sm btn-outline-secondary" onclick="clearConsola()">Limpiar</button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-2" id="errList"></div>
+    </div>
+  </div>
+</div>
 <script src="/static/panels.js"></script>
 <script src="/static/backends.js"></script>
+<div class="modal fade" id="mejoraModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title"><i class="bi bi-robot"></i> Mejorar agente <small class="text-secondary">— trabaja solo sobre el código del propio agente</small></h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-2">
+        <div id="mejoraChat" style="min-height:40vh;max-height:60vh;overflow-y:auto"></div>
+      </div>
+      <div class="modal-footer p-2">
+        <textarea id="mejoraInput" class="form-control form-control-sm" rows="2" placeholder="Ordena una mejora del agente (ej. 'haz la consola más clara')..."></textarea>
+        <button class="btn btn-sm btn-primary ms-2" onclick="sendMejora()"><i class="bi bi-send"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="stopMejora()"><i class="bi bi-stop-circle"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/static/consola.js"></script>
+<script src="/static/mejora.js"></script>
 <script src="/static/ajustes.js"></script>
 <script src="/static/voz.js"></script>
 <script src="/static/app.js"></script>
