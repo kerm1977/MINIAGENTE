@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% set card = "flex-1 basis-64 flex flex-col gap-1 p-5 rounded-2xl border border-stone-300 bg-surface shadow-sm dark:bg-stone-800 dark:border-stone-700" %}
+{% set inp = "w-full px-3 py-2 rounded-lg border border-stone-300 bg-bone font-normal focus:outline-none focus:ring-2 focus:ring-brand dark:bg-stone-900 dark:border-stone-700" %}
+{% block content %}
+<section class="flex flex-wrap items-center justify-between gap-6 p-8 rounded-2xl border border-stone-300 bg-surface shadow-sm dark:bg-stone-800 dark:border-stone-700">
+  <div class="flex-1 basis-80 flex flex-col gap-3">
+    <h1 class="text-3xl sm:text-4xl font-bold">Plantilla Flask lista</h1>
+    <p class="text-stone-500">Home limpio, responsivo con Flexbox. Personalízalo editando
+      <code class="text-brand-dark">templates/index.html</code>.</p>
+    <div class="flex flex-wrap gap-2">
+      <a class="px-4 py-2 rounded-lg bg-brand hover:bg-brand-dark text-white" href="{{ url_for('auth.registro') }}"><i class="bi bi-person-plus"></i> Crear cuenta</a>
+      <a class="px-4 py-2 rounded-lg border-2 border-brand text-brand-dark hover:bg-brand hover:text-white" href="{{ url_for('auth.login') }}"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
+    </div>
+  </div>
+  <i class="bi bi-rocket-takeoff text-8xl text-brand"></i>
+</section>
+
+<section class="flex flex-wrap gap-4">
+  {% for icon, t, d in [
+    ('bi-shield-lock', 'Bcrypt + Login', 'Contraseñas encriptadas y sesiones con Flask-Login.'),
+    ('bi-database', 'SQLite embebido', 'Flask-SQLAlchemy con app.db dentro del proyecto.'),
+    ('bi-file-earmark-pdf', 'Exportar', 'PDF, PNG, JPG, Word, Excel, PowerPoint, JSON y WhatsApp.'),
+    ('bi-youtube', 'yt-dlp', 'Descarga videos y listas de reproducción.'),
+    ('bi-check2-circle', 'Validaciones', 'Teléfono numérico, correo en minúsculas, nombres Title Case.'),
+    ('bi-phone', 'Magic bar', 'Barra inferior estilo app móvil activable.'),
+  ] %}
+  <article class="{{ card }}"><i class="bi {{ icon }} text-3xl text-brand"></i>
+    <h3 class="font-semibold text-lg">{{ t }}</h3><p class="text-stone-500">{{ d }}</p></article>
+  {% endfor %}
+</section>
+
+<section class="flex flex-col gap-4 p-6 rounded-2xl border border-stone-300 bg-surface shadow-sm dark:bg-stone-800 dark:border-stone-700">
+  <h2 class="text-xl font-semibold"><i class="bi bi-envelope-paper"></i> Formulario de contacto (demo de validaciones)</h2>
+  <form class="flex flex-wrap gap-4" data-validar novalidate>
+    <label class="flex-1 basis-60 flex flex-col gap-1 font-semibold">Nombre <input class="{{ inp }}" name="nombre" data-rule="nombre" placeholder="Ana María" required></label>
+    <label class="flex-1 basis-60 flex flex-col gap-1 font-semibold">Apellidos <input class="{{ inp }}" name="apellidos" data-rule="nombre" placeholder="Pérez Soto" required></label>
+    <label class="flex-1 basis-60 flex flex-col gap-1 font-semibold">Teléfono <input class="{{ inp }}" name="telefono" data-rule="telefono" inputmode="numeric" placeholder="88887777" required></label>
+    <label class="flex-1 basis-60 flex flex-col gap-1 font-semibold">Correo <input class="{{ inp }}" name="email" type="email" data-rule="email" placeholder="usuario@dominio.com" required></label>
+    <label class="basis-full flex flex-col gap-1 font-semibold">Contraseña <input class="{{ inp }}" name="password" type="password" data-rule="password" placeholder="Mínimo 8, letras y números"></label>
+    <label class="basis-full flex flex-col gap-1 font-semibold">Mensaje <textarea class="{{ inp }}" name="mensaje" rows="3" required></textarea></label>
+    <button class="px-4 py-2 rounded-lg bg-brand hover:bg-brand-dark text-white" type="submit"><i class="bi bi-send"></i> Enviar</button>
+  </form>
+</section>
+{% endblock %}

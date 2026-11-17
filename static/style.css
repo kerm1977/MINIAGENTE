@@ -1,0 +1,128 @@
+/* Mini Agente Code — solo Bootstrap (claro/oscuro) + Flexbox.
+   Único CSS extra: puente de color del tema para componentes Bootstrap
+   y utilidades funcionales (sidebar móvil, chat, scroll). */
+
+/* Puente de color del tema (Ajustes) → componentes Bootstrap */
+:root { --ma-primary: #f97316; --ma-primary-dark: #ea580c; }
+[data-bs-theme] .btn-primary {
+  --bs-btn-color: #fff; --bs-btn-bg: var(--ma-primary); --bs-btn-border-color: var(--ma-primary);
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ma-primary-dark); --bs-btn-hover-border-color: var(--ma-primary-dark);
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ma-primary-dark); --bs-btn-active-border-color: var(--ma-primary-dark);
+  --bs-btn-disabled-bg: var(--ma-primary); --bs-btn-disabled-border-color: var(--ma-primary);
+}
+[data-bs-theme] .btn-outline-primary {
+  --bs-btn-color: var(--ma-primary-dark); --bs-btn-border-color: var(--ma-primary);
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ma-primary); --bs-btn-hover-border-color: var(--ma-primary);
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ma-primary-dark); --bs-btn-active-border-color: var(--ma-primary-dark);
+}
+
+/* Chat: burbujas mínimas (Bootstrap no tiene componente de chat) */
+#chat .msg { margin-bottom: .75rem; }
+#chat .role { font-size: .7rem; text-transform: uppercase; color: var(--ma-muted, #6c757d); margin-bottom: .15rem; }
+.msg .body { border-radius: .7rem; padding: .6rem .8rem; background: var(--ma-surface2, #f8f9fa); }
+
+/* Código y salidas de herramientas */
+.codeblock { border-radius: .5rem; margin: .5rem 0; overflow: hidden; }
+.codehead { display: flex; justify-content: space-between; align-items: center;
+  background: var(--ma-surface2, #e9ecef); padding: .2rem .6rem; font-size: .75rem; color: #6c757d; }
+.codeblock pre { margin: 0; padding: .6rem; background: rgba(0, 0, 0, .25); overflow-x: auto; }
+[data-bs-theme="light"] .codeblock pre { background: rgba(0, 0, 0, .06); }
+.toolchip { border-left: 3px solid #198754; border-radius: .4rem;
+  padding: .4rem .6rem; margin: .4rem 0; font-size: .8rem; }
+.toolchip.fail { border-left-color: #dc3545; }
+.toolchip pre { white-space: pre-wrap; max-height: 8rem; overflow: auto; }
+#fileTree { max-height: 16rem; overflow: auto; white-space: pre; }
+#catalogList { max-height: 55vh; overflow-y: auto; }
+
+.icon-btn { cursor: pointer; }
+.icon-btn:hover { opacity: 0.6; }
+.code-dot { animation: blinkDot 1.4s ease-in-out infinite; }
+@keyframes blinkDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+/* Editor split: gutter + resaltado tipo Sublime */
+.ed-wrap { position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.ed-body { position: relative; display: flex; flex: 1; overflow: hidden; }
+.ed-wrap.wrap-on .ed-code { white-space: pre-wrap; word-break: break-word; padding-right: 20px; }
+.ed-gutter {
+  flex-shrink: 0; width: 3.2em; overflow: hidden; text-align: right;
+  padding: .375rem .4rem 0 0; font-family: monospace; font-size: .875em;
+  color: #8b95a5; user-select: none; border-right: 1px solid #9aa7b833;
+  white-space: pre; line-height: 1.5; margin-right: .4em;
+}
+.ed-code {
+  flex-grow: 1; margin: 0; padding: .375rem .4rem;
+  font-family: monospace; font-size: .875em; line-height: 1.5;
+  white-space: pre; overflow: auto; outline: none; tab-size: 4;
+}
+.ed-code::selection { background: rgba(120,150,255,.45); }
+.tok-kw { color: #c678dd; }   /* palabras clave */
+.tok-str { color: #98c379; }  /* strings */
+.tok-cm { color: #7f8c98; font-style: italic; }  /* comentarios */
+.tok-num { color: #d19a66; }  /* números */
+.tok-tag { color: #e06c75; }  /* tags html */
+.tok-fn { color: #61afef; }   /* funciones */
+.ed-changed::after { content: " ●"; color: #f2a5b6; }
+.ed-dir-changed::before { content: "● "; color: #e5484d; }
+.ed-area { padding-right: 10px !important; }
+@media (min-width: 768px) {
+  #sidebar.resizable { flex: 0 0 auto; min-width: 160px; max-width: 60vw; }
+}
+
+/* Panel ⚙: siempre fixed y centrado en todas las vistas */
+#genPanel.dropdown-menu {
+  position: fixed !important;
+  top: 50% !important; left: 50% !important; right: auto !important; bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: 92vw !important; max-width: 340px; max-height: 80vh;
+  overflow-y: auto; z-index: 1060;
+  box-shadow: 0 3px 14px rgba(0,0,0,.18);
+}
+
+/* Texto dentro de ítems del acordeón: indentado hacia la derecha (excepto Proyectos creados) */
+#sideAcc .accordion-collapse:not(#cPre) .list-group-item,
+#sideAcc .accordion-collapse:not(#cPre) .small,
+#sideAcc .accordion-collapse:not(#cPre) .text-secondary,
+#sideAcc .accordion-collapse:not(#cPre) .form-text,
+#sideAcc .accordion-collapse:not(#cPre) label {
+  margin-left: 5pt;
+}
+
+/* Sidebar móvil */
+#sideBackdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); z-index: 1040; }
+#sidebar { transition: transform .2s ease; }
+@media (max-width: 767.98px) {
+  #sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 1045; width: 94vw;
+    max-width: 520px; background: var(--bs-body-bg); transform: translateX(-105%); }
+  #sidebar.open { transform: translateX(0); }
+}
+@media (min-width: 768px) { #sidebar.collapsed { display: none; } }
+
+/* Indicador de grabación y selector de color (Ajustes) */
+.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: #dc3545;
+  display: inline-block; animation: recPulse 1s infinite; }
+@keyframes recPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+#recCanvas { background: var(--bs-body-bg); border-radius: 4px; }
+
+.tema-swatch {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid transparent; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.9rem; padding: 0;
+}
+.tema-swatch.activo {
+  border-color: var(--bs-body-color);
+  box-shadow: 0 0 0 2px var(--bs-body-bg), 0 0 0 4px var(--bs-body-color);
+}
+
+/* Íconos pastel en acordeones (pedido del usuario) */
+.accordion-button { gap: .65rem; }
+.accordion-button i { margin-right: .15rem; flex-shrink: 0; }
+#sideAcc .accordion-item:nth-child(1) .accordion-button i { color: #f9a8d4; }
+#sideAcc .accordion-item:nth-child(2) .accordion-button i { color: #7dd3fc; }
+#sideAcc .accordion-item:nth-child(3) .accordion-button i { color: #86efac; }
+#sideAcc .accordion-item:nth-child(4) .accordion-button i { color: #c4b5fd; }
+#sideAcc .accordion-item:nth-child(5) .accordion-button i { color: #fdba74; }
+#sideAcc .accordion-item:nth-child(6) .accordion-button i { color: #5eead4; }
+#sideAcc .accordion-item:nth-child(7) .accordion-button i { color: #fcd34d; }
+#sideAcc .accordion-item:nth-child(8) .accordion-button i { color: #f9a8d4; }
+#sideAcc .accordion-item:nth-child(9) .accordion-button i { color: #bef264; }

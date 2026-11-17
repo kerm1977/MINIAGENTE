@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set inp = "w-full px-3 py-2 rounded-lg border border-stone-300 bg-bone font-normal focus:outline-none focus:ring-2 focus:ring-brand dark:bg-stone-900 dark:border-stone-700" %}
+{% set lbl = "basis-full flex flex-col gap-1 font-semibold" %}
+{% set btn = "px-4 py-2 rounded-lg bg-brand hover:bg-brand-dark text-white" %}
+{% block title %}{{ 'Crear cuenta' if modo == 'registro' else 'Entrar' }}{% endblock %}
+{% block content %}
+<section class="w-full max-w-md mx-auto flex flex-col gap-4 p-6 rounded-2xl border border-stone-300 bg-surface shadow-sm dark:bg-stone-800 dark:border-stone-700">
+  {% if modo == 'registro' %}
+    <h2 class="text-xl font-semibold"><i class="bi bi-person-plus"></i> Crear cuenta</h2>
+    <form method="post" class="flex flex-wrap gap-4" data-validar novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="{{ lbl }}">Nombre completo
+        <input class="{{ inp }}" name="username" data-rule="nombre" value="{{ form.get('username', '') }}" required>
+        {% if errores.username %}<small class="err">{{ errores.username }}</small>{% endif %}
+      </label>
+      <label class="{{ lbl }}">Correo
+        <input class="{{ inp }}" name="email" type="email" data-rule="email" value="{{ form.get('email', '') }}" required>
+        {% if errores.email %}<small class="err">{{ errores.email }}</small>{% endif %}
+      </label>
+      <label class="{{ lbl }}">Contraseña
+        <input class="{{ inp }}" name="password" type="password" data-rule="password" required>
+        {% if errores.password %}<small class="err">{{ errores.password }}</small>{% endif %}
+      </label>
+      <button class="{{ btn }}" type="submit"><i class="bi bi-check2"></i> Registrarme</button>
+      <a class="text-sm text-brand-dark self-center" href="{{ url_for('auth.login') }}">¿Ya tienes cuenta? Entra</a>
+    </form>
+  {% else %}
+    <h2 class="text-xl font-semibold"><i class="bi bi-box-arrow-in-right"></i> Entrar</h2>
+    {% if error %}<div class="rounded-lg px-4 py-3 bg-amber-100 text-amber-800">{{ error }}</div>{% endif %}
+    <form method="post" class="flex flex-wrap gap-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="{{ lbl }}">Correo o usuario
+        <input class="{{ inp }}" name="ident" value="{{ form.get('ident', '') }}" required>
+      </label>
+      <label class="{{ lbl }}">Contraseña
+        <input class="{{ inp }}" name="password" type="password" required>
+      </label>
+      <button class="{{ btn }}" type="submit"><i class="bi bi-box-arrow-in-right"></i> Entrar</button>
+      <a class="text-sm text-brand-dark self-center" href="{{ url_for('auth.registro') }}">¿No tienes cuenta? Regístrate</a>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

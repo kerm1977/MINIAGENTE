@@ -1,0 +1,65 @@
+/* Variante Bulma: paleta oficial de Bulma (primary teal, link azul). */
+:root {
+  --brand: #00d1b2; --brand-dark: #00a699; --bone: #ffffff;
+  --surface: #ffffff; --text: #363636; --muted: #7a7a7a; --border: #dbdbdb;
+}
+[data-theme="dark"] {
+  --brand: #00d1b2; --brand-dark: #00a699; --bone: #121212;
+  --surface: #242424; --text: #f5f5f5; --muted: #b5b5b5; --border: #363636;
+}
+body { background: var(--bone); color: var(--text); }
+.navbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .5rem 1rem; background: var(--brand); color: #fff; }
+.navbar .brand, .navbar .navlinks a { color: #fff; }
+.brand { font-weight: 700; font-size: 1.15rem; text-decoration: none; display: flex; align-items: center; gap: .5rem; }
+.navlinks { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; }
+.navlinks a { display: flex; align-items: center; gap: .4rem; padding: .45rem .75rem; border-radius: 10px;
+  color: #fff; text-decoration: none; }
+.navlinks a:hover { background: rgba(255, 255, 255, .18); }
+.actions { display: flex; gap: .35rem; }
+.icon-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;
+  border: none; border-radius: 10px; background: rgba(255, 255, 255, .15); color: #fff; font-size: 1.2rem; cursor: pointer; }
+.icon-btn:hover { background: rgba(255, 255, 255, .3); }
+.hamburger { display: none; }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 1.5rem; flex: 1; }
+.hero { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;
+  padding: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.hero-icon { font-size: clamp(4rem, 12vw, 8rem); color: var(--brand); }
+.cards { display: flex; flex-wrap: wrap; gap: 1rem; }
+.card-flex { flex: 1 1 260px; display: flex; flex-direction: column; gap: .35rem; padding: 1.25rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.card-flex i { font-size: 1.8rem; color: var(--brand); }
+.panel { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 14px; }
+.form-flex { display: flex; flex-wrap: wrap; gap: 1rem; }
+.form-flex .field { flex: 1 1 240px; }
+.form-flex .field.full { flex-basis: 100%; }
+.form-flex label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.marca-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .75rem 1rem; border-top: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); font-size: .85rem; }
+.marca-foot a { color: var(--muted); margin-left: .75rem; font-size: 1.1rem; }
+
+.magicbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1030; display: none; justify-content: space-around;
+  align-items: center; height: 64px; padding-bottom: env(safe-area-inset-bottom); background: var(--surface);
+  border-top: 1px solid var(--border); box-shadow: 0 -4px 16px rgba(0, 0, 0, .08); }
+.magicbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  color: var(--muted); text-decoration: none; font-size: .72rem; }
+.magicbar a i { font-size: 1.35rem; }
+.magicbar a.active, .magicbar a:hover { color: var(--brand); }
+body.magic-on .magicbar { display: flex; }
+body.magic-on .marca-foot { margin-bottom: 64px; }
+
+.input.is-invalid { border-color: #c0392b !important; }
+.err { color: #c0392b; font-size: .85rem; }
+.btn-brand { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn-brand:hover { background: var(--brand-dark); border-color: var(--brand-dark); color: #fff; }
+.btn-outline-brand { border: 2px solid var(--brand); color: var(--brand-dark); background: transparent; }
+.btn-outline-brand:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+@media (max-width: 860px) {
+  .hamburger { display: flex; }
+  .navlinks { display: none; flex-basis: 100%; flex-direction: column; align-items: stretch; padding-bottom: .75rem; }
+  .navlinks.open { display: flex; }
+}

@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini Agente Code</title>
+<link rel="icon" href="data:,">
+<link href="/static/vendor/bootstrap.min.css" rel="stylesheet">
+<link href="/static/vendor/bootstrap-icons.min.css" rel="stylesheet">
+<link href="/static/style.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column vh-100">
+<nav class="navbar border-bottom px-3 bg-body-tertiary">
+  <div class="d-flex align-items-center gap-2 flex-grow-1">
+    <button id="sideToggle" class="btn btn-sm btn-outline-secondary" onclick="toggleSidebar()" title="Mostrar/ocultar panel"><i class="bi bi-list"></i></button>
+    <span class="navbar-brand mb-0 mx-auto">Agente</span>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span id="statusDot" class="badge bg-secondary">Ollama…</span>
+    <span class="dropdown me-2">
+      <i class="bi bi-bell icon-btn position-relative" data-bs-toggle="dropdown" role="button" title="Notificaciones de modelos nuevos" style="color:#9aa7b8">
+        <span id="bellBadge" class="position-absolute badge rounded-pill bg-danger d-none" style="font-size:.55rem;top:-2px;right:-4px">0</span>
+      </i>
+      <ul class="dropdown-menu dropdown-menu-end small" id="bellMenu" style="min-width:260px;max-height:70vh;overflow-y:auto">
+        <li class="px-3 py-1 text-secondary">sin novedades</li>
+      </ul>
+    </span>
+    <input id="impJson" type="file" class="d-none" accept=".json,application/json" onchange="importJSON(this)">
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" title="Opciones"><i class="bi bi-three-dots-vertical"></i></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#apModal"><i class="bi bi-palette"></i> Apariencia</button></li>
+        <li><button class="dropdown-item" onclick="toggleEditor()"><i class="bi bi-layout-split"></i> Editor (split)</button></li>
+        <li><button class="dropdown-item" onclick="exportJSON()"><i class="bi bi-box-arrow-down"></i> Exportar JSON</button></li>
+        <li><button class="dropdown-item" onclick="document.getElementById('impJson').click()"><i class="bi bi-box-arrow-up"></i> Importar JSON</button></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container-fluid flex-grow-1 overflow-hidden">
+<div class="row h-100">
+
+  <div id="sidebar" class="col-md-4 col-lg-3 border-end overflow-auto py-3">
+    <h6 class="text-uppercase text-secondary">Modelo activo</h6>
+    <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="newProjectState()"><i class="bi bi-file-earmark-plus"></i> Nuevo proyecto</button>
+    <select id="modelSelect" class="form-select form-select-sm mb-3"></select>
+
+    <div class="accordion accordion-flush" id="sideAcc">
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cRecent"><i class="bi bi-clock-history"></i>Recientes</button>
+        </h2>
+        <div id="cRecent" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div id="recentList" class="list-group list-group-flush small p-2"></div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button py-2" data-bs-toggle="collapse" data-bs-target="#cSessions"><i class="bi bi-chat-left-text"></i>Sesiones</button>
+        </h2>
+        <div id="cSessions" class="accordion-collapse collapse show" data-bs-parent="#sideAcc">
+          <div class="p-2">
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="newSession()">+ nueva</button>
+          </div>
+          <div id="sessionList" class="list-group list-group-flush small mb-3"></div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cCatalog"><i class="bi bi-tags"></i>Catálogo gratuito</button>
+        </h2>
+        <div id="cCatalog" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div class="p-2">
+            <div class="input-group input-group-sm mb-1">
+              <input id="catSearch" class="form-control" placeholder="Buscar modelo…" oninput="filterCatalog()">
+              <button class="btn btn-outline-primary" onclick="refreshCatalog()" title="Buscar modelos nuevos en ollama.com"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+          </div>
+          <div id="catalogList" class="list-group list-group-flush small"></div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cModels"><i class="bi bi-cpu"></i>Modelos instalados</button>
+        </h2>
+        <div id="cModels" class="accordion-collapse collapse show" data-bs-parent="#sideAcc">
+          <div id="modelList" class="list-group list-group-flush small"></div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cPull"><i class="bi bi-download"></i>Descargar modelo<span id="pullNewCount" class="ms-1 text-secondary"></span></button>
+        </h2>
+        <div id="cPull" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div class="p-2">
+            <input id="pullName" class="form-control form-control-sm mb-2" placeholder="qwen2.5-coder:1.5b">
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="pullModel()"><i class="bi bi-download"></i> Descargar</button>
+            <div class="form-text">Cualquier nombre del registro de Ollama.</div>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cCreate"><i class="bi bi-plus-circle"></i>Crear modelo</button>
+        </h2>
+        <div id="cCreate" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div class="p-2">
+            <input id="newName" class="form-control form-control-sm mb-2" placeholder="mi-coder:latest">
+            <select id="newBase" class="form-select form-select-sm mb-2"><option value="">Base: elige modelo instalado</option></select>
+            <textarea id="newSystem" class="form-control form-control-sm mb-2" rows="3" placeholder="System prompt (opcional)"></textarea>
+            <button class="btn btn-sm btn-outline-success w-100" onclick="createModel()"><i class="bi bi-plus-circle"></i> Crear</button>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cUpload"><i class="bi bi-upload"></i>Subir modelo (.gguf)</button>
+        </h2>
+        <div id="cUpload" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div class="p-2">
+            <input id="upName" class="form-control form-control-sm mb-2" placeholder="nombre:tag">
+            <input id="upFile" type="file" class="form-control form-control-sm mb-2" accept=".gguf">
+            <button class="btn btn-sm btn-outline-warning w-100" onclick="uploadModel()"><i class="bi bi-upload"></i> Subir y registrar</button>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cProj"><i class="bi bi-folder"></i>Proyectos</button>
+        </h2>
+        <div id="cProj" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div class="p-2">
+            <input id="projName" class="form-control form-control-sm mb-2" placeholder="mi-app">
+            <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="newProject()"><i class="bi bi-folder-plus"></i> Crear proyecto Flask</button>
+            <div id="projectList" class="small"></div>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cFiles"><i class="bi bi-folder2-open"></i>Workspace</button>
+        </h2>
+        <div id="cFiles" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div class="p-2 small">
+            <div class="text-secondary mb-1">{{ workspace }}</div>
+            <button class="btn btn-sm btn-outline-secondary mb-2" onclick="loadFiles()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            <pre id="fileTree" class="border rounded p-2 bg-black small mb-0">—</pre>
+            <label class="form-label small fw-bold mt-2">Subir archivos o carpeta para analizar</label>
+            <input id="upCode" type="file" class="form-control form-control-sm mb-2" multiple webkitdirectory>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="uploadCode()"><i class="bi bi-upload"></i> Subir al workspace</button>
+            <div class="form-text">Se guardan en <code>workspace/uploads/&lt;fecha&gt;/</code> — luego pide al asistente: "analiza uploads/...".</div>
+            <hr>
+            <label class="form-label small fw-bold">Guardar / restaurar workspace</label>
+            <div class="input-group input-group-sm mb-2">
+              <input id="wsName" class="form-control" placeholder="nombre-copia">
+              <button class="btn btn-outline-secondary" onclick="saveWorkspace()"><i class="bi bi-save"></i> guardar</button>
+            </div>
+            <div id="savedList" class="list-group list-group-flush mb-1"></div>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#cPre"><i class="bi bi-collection"></i>Proyectos creados</button>
+        </h2>
+        <div id="cPre" class="accordion-collapse collapse" data-bs-parent="#sideAcc">
+          <div class="p-2">
+            <div id="preList" class="list-group list-group-flush border rounded mb-2"></div>
+            <div id="editLog" class="small"></div>
+            <div class="form-text mb-2">Zip descargable o <i class="bi bi-folder2-open"></i> instala directo en <code>Descargas\Miniagente\</code>.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sideMsg" class="small text-info mt-2"></div>
+    <div class="mt-3">
+      <a class="small text-secondary" href="https://app.devin.ai/sessions/5cbb9a9ebfbb4760b1078e2870b6d1af">Solicitar cambios</a>
+    </div>
+  </div>
+
+  <div id="sideSplit" class="d-none d-md-block" style="width:5px;cursor:col-resize;background:#9aa7b833;flex-shrink:0" title="Arrastra para ajustar"></div>
+  <div id="chatCol" class="col d-flex flex-column h-100 py-2">
+    <div id="chat" class="flex-grow-1 overflow-auto mb-2 pe-2"></div>
+    <div class="d-flex gap-2 align-items-center mb-1 small">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="rootMode">
+        <label class="form-check-label" for="rootMode">Acceso root (fuera del workspace)</label>
+      </div>
+      <span id="tokCount" class="ms-auto text-secondary d-none">0 tok · 0.0 tok/s</span>
+    </div>
+    <div id="emojiPanel" class="border rounded mb-1 p-2 d-none">
+      <div id="emojiTabs" class="d-flex gap-1 flex-wrap mb-1"></div>
+      <div id="emojiGrid" class="d-flex flex-wrap gap-1"></div>
+    </div>
+    <div id="recBar" class="d-none align-items-center gap-2 mb-1">
+      <span class="rec-dot"></span>
+      <canvas id="recCanvas" width="220" height="28"></canvas>
+      <span id="recTime" class="small">0:00</span>
+      <span class="small text-secondary">Grabando — pulsa el micrófono para parar</span>
+    </div>
+    <div class="text-end d-flex justify-content-end align-items-center gap-2">
+      <span class="dropdown">
+        <i class="bi bi-sliders icon-btn" data-bs-toggle="dropdown" role="button" title="Administrador de tokens y velocidad" style="color:#9aa7b8"></i>
+        <div class="dropdown-menu dropdown-menu-end p-2" id="genPanel" style="min-width:230px" onclick="event.stopPropagation()">
+          <label class="small text-secondary">Peso (effort)</label>
+          <select id="genPreset" class="form-select form-select-sm mb-2">
+            <option value="rapido">⚡ rápido</option>
+            <option value="moderado" selected>◐ moderado</option>
+            <option value="avanzado">◉ avanzado</option>
+          </select>
+          <label class="small text-secondary">Memoria (contexto)</label>
+          <select id="genMem" class="form-select form-select-sm mb-2">
+            <option value="2048">baja</option>
+            <option value="4096" selected>media</option>
+            <option value="8192">alta</option>
+            <option value="16384">máxima</option>
+          </select>
+          <label class="small text-secondary">Dispositivo</label>
+          <select id="genDevice" class="form-select form-select-sm mb-2">
+            <option value="auto" selected>auto (GPU si hay)</option>
+            <option value="cpu">CPU</option>
+          </select>
+          <label class="small text-secondary">Tokens máx. por respuesta</label>
+          <select id="genMaxTok" class="form-select form-select-sm mb-2">
+            <option value="" selected>según peso</option>
+            <option value="256">256</option>
+            <option value="512">512</option>
+            <option value="2048">2048</option>
+            <option value="4096">4096</option>
+            <option value="-1">ilimitado</option>
+          </select>
+          <label class="small text-secondary">Hilos CPU (velocidad)</label>
+          <select id="genThreads" class="form-select form-select-sm">
+            <option value="" selected>auto</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="16">16</option>
+          </select>
+          <button class="btn btn-sm btn-outline-secondary w-100 mt-2" onclick="analyzeHw()"><i class="bi bi-cpu"></i> Analizar equipo</button>
+          <div id="hwInfo" class="small text-secondary mt-1"></div>
+          <div id="hwModels" class="small text-secondary mt-1"></div>
+        </div>
+      </span>
+      <span id="modelTag" class="small" style="color:#9aa7b8;cursor:pointer" role="button"></span>
+    </div>
+    <div class="border rounded-3 bg-body-tertiary p-2">
+      <textarea id="prompt" class="form-control border-0 shadow-none bg-transparent" rows="2" placeholder="Pide código, crea archivos, corrige errores… (Enter envía · Shift+Enter salto)"></textarea>
+      <div class="d-flex justify-content-between align-items-center mt-1">
+        <div class="d-flex gap-3">
+          <i class="bi bi-plus-lg fs-5 icon-btn" data-bs-toggle="modal" data-bs-target="#addModal" role="button" title="Añadir archivos, carpeta o repo GitHub"></i>
+          <i class="bi bi-emoji-smile fs-5 icon-btn" onclick="toggleEmoji()" role="button" title="Emojis"></i>
+          <span class="dropdown">
+            <i class="bi bi-cloud fs-5 icon-btn" data-bs-toggle="dropdown" role="button" title="Modelos instalados"></i>
+            <ul class="dropdown-menu" id="modelMenu"></ul>
+          </span>
+        </div>
+        <div class="d-flex gap-3">
+          <i class="bi bi-trash fs-5 icon-btn" onclick="clearChat()" role="button" title="Limpiar" style="color:#f2a5b6"></i>
+          <i id="micBtn" class="bi bi-mic fs-5 icon-btn" onclick="toggleMic()" role="button" title="Dictar"></i>
+          <i id="sendBtn" class="bi bi-arrow-up fs-5 icon-btn" onclick="send()" role="button" title="Enviar"></i>
+          <i id="stopBtn" class="bi bi-stop-fill fs-5 icon-btn d-none" onclick="stopGen()" role="button" title="Detener" style="color:#f2a5b6"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="splitBar" class="d-none" style="width:6px;cursor:col-resize;background:#9aa7b833;flex-shrink:0" title="Arrastra para ajustar"></div>
+  <div id="editorPane" class="col-md-5 border-start d-none d-flex flex-column h-100 py-2">
+    <div class="d-flex align-items-center gap-2 mb-1 small">
+      <span id="edPath" class="flex-grow-1 text-secondary text-truncate">editor</span>
+      <button id="edWrap" class="btn btn-sm btn-outline-secondary py-0" onclick="toggleWrap()" title="Ajustar líneas"><i class="bi bi-text-wrap"></i></button>
+      <button class="btn btn-sm btn-outline-primary py-0" onclick="saveEditor()" title="Guardar archivo"><i class="bi bi-save"></i></button>
+      <button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleEditor()" title="Cerrar"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="d-flex flex-grow-1 overflow-hidden">
+      <div id="edTree" class="overflow-auto small pe-1" style="width:38%"></div>
+      <div id="edSplit" style="width:5px;cursor:col-resize;background:#9aa7b833;flex-shrink:0" title="Arrastra para ajustar"></div>
+      <div class="ed-wrap flex-grow-1">
+        <div class="ed-body">
+          <div id="edGutter" class="ed-gutter"></div>
+          <pre id="edCode" class="ed-code" contenteditable="true" spellcheck="false"><code></code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div id="sideBackdrop" class="d-none" onclick="closeSidebar()"></div>
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2"><h6 class="modal-title"><i class="bi bi-plus-lg"></i> Añadir al workspace</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body small">
+        <label class="form-label fw-bold mb-1">Archivos sueltos</label>
+        <input id="upFiles" type="file" class="form-control form-control-sm mb-2" multiple onchange="uploadFiles(this)">
+        <label class="form-label fw-bold mb-1">Carpeta completa</label>
+        <input id="upFolder" type="file" class="form-control form-control-sm mb-1" webkitdirectory onchange="uploadFiles(this)">
+        <div class="form-text mb-2">Van a <code>uploads/&lt;fecha&gt;/</code></div>
+        <hr class="my-2">
+        <label class="form-label fw-bold mb-1">Repositorio de GitHub</label>
+        <input id="repoUrl" class="form-control form-control-sm mb-2" placeholder="https://github.com/usuario/repo">
+        <button class="btn btn-sm btn-outline-primary w-100" onclick="cloneRepo()"><i class="bi bi-git"></i> Clonar, instalar y ejecutar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="ghModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2"><h6 class="modal-title"><i class="bi bi-github"></i> Guardar en GitHub</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body small">
+        <input id="ghFw" type="hidden">
+        <label class="form-label fw-bold mb-1">Usuario de GitHub</label>
+        <input id="ghUser" class="form-control form-control-sm mb-2" placeholder="mi-usuario">
+        <label class="form-label fw-bold mb-1">Token (PAT con scope repo)</label>
+        <input id="ghToken" type="password" class="form-control form-control-sm mb-2" placeholder="ghp_…">
+        <label class="form-label fw-bold mb-1">Nombre del repo</label>
+        <input id="ghRepo" class="form-control form-control-sm mb-1">
+      </div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="githubSave()">Subir</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2"><h6 class="modal-title" id="confirmTitle"></h6></div>
+      <div class="modal-body small" id="confirmBody"></div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-outline-secondary btn-sm" id="confirmNo">Cancelar</button>
+        <button class="btn btn-danger btn-sm" id="confirmYes">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="delModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2"><h6 class="modal-title" id="delTitle"></h6></div>
+      <div class="modal-body small" id="delBody"></div>
+      <div class="modal-footer py-2" id="delFoot"></div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="clearModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2"><h6 class="modal-title" id="clearTitle"></h6></div>
+      <div class="modal-body small" id="clearBody"></div>
+      <div class="modal-footer py-2" id="clearFoot"></div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="apModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2"><h6 class="modal-title"><i class="bi bi-palette"></i> Apariencia</h6>
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small">
+        <label class="form-label small fw-bold">Apariencia</label>
+        <div class="btn-group btn-group-sm w-100 mb-3">
+          <button id="btnThemeLight" type="button" class="btn btn-outline-secondary" onclick="setTemaModo('light')"><i class="bi bi-sun"></i> Claro</button>
+          <button id="btnThemeDark" type="button" class="btn btn-outline-secondary" onclick="setTemaModo('dark')"><i class="bi bi-moon"></i> Oscuro</button>
+        </div>
+        <label class="form-label small fw-bold">Color del tema</label>
+        <div id="temaColores" class="d-flex flex-wrap gap-2 mb-3"></div>
+        <label class="form-label small fw-bold">Tamaño de fuente</label>
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cambiarEscala(-1)" title="Disminuir tamaño"><i class="bi bi-dash-lg"></i> A</button>
+          <span id="temaFuenteValor" class="text-muted small">16px</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cambiarEscala(1)" title="Aumentar tamaño"><i class="bi bi-plus-lg"></i> A</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/static/vendor/bootstrap.bundle.min.js"></script>
+<script src="/static/panels.js"></script>
+<script src="/static/ajustes.js"></script>
+<script src="/static/voz.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

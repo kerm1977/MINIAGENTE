@@ -1,0 +1,46 @@
+/* Tema: paleta oficial de Bootstrap 5. Cambia aquí y se aplica a toda la app. */
+:root {
+  --brand: #0d6efd;          /* Bootstrap primary */
+  --brand-dark: #0a58ca;     /* Bootstrap primary activo */
+  --bone: #f8f9fa;           /* Bootstrap body-bg claro */
+  --surface: #ffffff;
+  --text: #212529;           /* Bootstrap body-color */
+  --muted: #6c757d;          /* Bootstrap secondary */
+  --border: #dee2e6;
+  --radius: .375rem;
+  --shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+  --topbar-h: 60px;
+  --magicbar-h: 64px;
+}
+
+[data-theme="dark"] {
+  --brand: #0d6efd;
+  --brand-dark: #0b5ed7;
+  --bone: #212529;           /* Bootstrap dark body-bg */
+  --surface: #2b3035;        /* Bootstrap dark card */
+  --text: #dee2e6;
+  --muted: #adb5bd;
+  --border: #495057;
+  --shadow: 0 .125rem .25rem rgba(0, 0, 0, .5);
+}
+
+body.app {
+  background: var(--bone);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: var(--brand); }
+code { color: var(--brand-dark); }
+
+.btn-brand {
+  background: var(--brand); color: #fff; border: none;
+}
+.btn-brand:hover { background: var(--brand-dark); color: #fff; }
+.btn-outline-brand {
+  border: 2px solid var(--brand); color: var(--brand); background: transparent;
+}
+.btn-outline-brand:hover { background: var(--brand); color: #fff; }
+
+.err { color: #dc3545; font-size: .85rem; }
+.flash { margin-bottom: 1rem; }

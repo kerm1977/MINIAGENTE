@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:.75rem">
+    <h1 style="margin:0;font-size:clamp(1.5rem,4vw,2.4rem)">Plantilla Flask lista</h1>
+    <p style="color:var(--muted);margin:0">Home limpio, responsivo con Flexbox. Personalízalo editando
+      <code>templates/index.html</code>.</p>
+    <div class="form-flex">
+      <a class="btn brand" href="{{ url_for('auth.registro') }}"><i class="bi bi-person-plus"></i> Crear cuenta</a>
+      <a class="btn outline-brand" href="{{ url_for('auth.login') }}"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
+    </div>
+  </div>
+  <i class="bi bi-rocket-takeoff hero-icon"></i>
+</section>
+
+<section class="cards">
+  {% for icon, t, d in [
+    ('bi-shield-lock', 'Bcrypt + Login', 'Contraseñas encriptadas y sesiones con Flask-Login.'),
+    ('bi-database', 'SQLite embebido', 'Flask-SQLAlchemy con app.db dentro del proyecto.'),
+    ('bi-file-earmark-pdf', 'Exportar', 'PDF, PNG, JPG, Word, Excel, PowerPoint, JSON y WhatsApp.'),
+    ('bi-youtube', 'yt-dlp', 'Descarga videos y listas de reproducción.'),
+    ('bi-check2-circle', 'Validaciones', 'Teléfono numérico, correo en minúsculas, nombres Title Case.'),
+    ('bi-phone', 'Magic bar', 'Barra inferior estilo app móvil activable.'),
+  ] %}
+  <article class="card-flex"><i class="bi {{ icon }}"></i><h3>{{ t }}</h3><p style="color:var(--muted);margin:0">{{ d }}</p></article>
+  {% endfor %}
+</section>
+
+<section class="panel">
+  <h2 style="margin:0;display:flex;gap:.5rem;align-items:center"><i class="bi bi-envelope-paper"></i> Formulario de contacto (demo de validaciones)</h2>
+  <form class="form-flex" data-validar novalidate>
+    <label class="field">Nombre <input name="nombre" data-rule="nombre" placeholder="Ana María" required></label>
+    <label class="field">Apellidos <input name="apellidos" data-rule="nombre" placeholder="Pérez Soto" required></label>
+    <label class="field">Teléfono <input name="telefono" data-rule="telefono" inputmode="numeric" placeholder="88887777" required></label>
+    <label class="field">Correo <input name="email" type="email" data-rule="email" placeholder="usuario@dominio.com" required></label>
+    <label class="field full">Contraseña <input name="password" type="password" data-rule="password" placeholder="Mínimo 8, letras y números"></label>
+    <label class="field full">Mensaje <textarea name="mensaje" rows="3" required></textarea></label>
+    <button class="btn brand" type="submit"><i class="bi bi-send"></i> Enviar</button>
+  </form>
+</section>
+{% endblock %}

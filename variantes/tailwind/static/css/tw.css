@@ -1,0 +1,14 @@
+/* Estados que Tailwind no cubre: hamburger, magic bar y validación. */
+.hamburger { display: none; }
+.magicbar { display: none; }
+body.magic-on .magicbar { display: flex; }
+body.magic-on .footer { margin-bottom: 4rem; }
+.magicbar a.active { color: #2563eb; }
+input.invalid { border-color: #c0392b !important; }
+.err { color: #c0392b; font-size: .85rem; font-weight: 400; }
+
+@media (max-width: 860px) {
+  .hamburger { display: flex; }
+  .topnav { display: none; flex-basis: 100%; flex-direction: column; align-items: stretch; padding-bottom: .75rem; }
+  .topnav.open { display: flex; }
+}

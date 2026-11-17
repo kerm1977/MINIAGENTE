@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <h1>Plantilla Flask lista</h1>
+    <p>Home limpio, responsivo con Flexbox. Personalízalo a tu gusto:
+       edita <code>templates/index.html</code> y <code>static/css/theme.css</code>.</p>
+    <div class="hero-actions">
+      <a class="btn btn-brand" href="{{ url_for('auth.registro') }}"><i class="bi bi-person-plus"></i> Crear cuenta</a>
+      <a class="btn btn-outline-brand" href="{{ url_for('auth.login') }}"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
+    </div>
+  </div>
+  <i class="bi bi-rocket-takeoff hero-icon"></i>
+</section>
+
+<section class="cards">
+  <article class="card-flex"><i class="bi bi-shield-lock"></i><h3>Bcrypt + Login</h3>
+    <p>Contraseñas encriptadas y sesiones con Flask-Login.</p></article>
+  <article class="card-flex"><i class="bi bi-database"></i><h3>SQLite embebido</h3>
+    <p>Flask-SQLAlchemy con <code>app.db</code> dentro del proyecto.</p></article>
+  <article class="card-flex"><i class="bi bi-file-earmark-pdf"></i><h3>Exportar</h3>
+    <p>PDF, PNG, JPG, Word, Excel, PowerPoint, JSON y WhatsApp.</p></article>
+  <article class="card-flex"><i class="bi bi-youtube"></i><h3>yt-dlp</h3>
+    <p>Descarga videos y listas de reproducción.</p></article>
+  <article class="card-flex"><i class="bi bi-check2-circle"></i><h3>Validaciones</h3>
+    <p>Teléfono numérico, correo en minúsculas, nombres Title Case.</p></article>
+  <article class="card-flex"><i class="bi bi-phone"></i><h3>Magic bar</h3>
+    <p>Barra inferior estilo app móvil activable.</p></article>
+  <article class="card-flex"><i class="bi bi-qr-code"></i><h3>QR y gráficos</h3>
+    <p>Códigos QR (PNG/SVG) y gráficos PNG/SVG con matplotlib.</p></article>
+  <article class="card-flex"><i class="bi bi-phone"></i><h3>PWA</h3>
+    <p>Manifiesto con permisos Android en <code>/api/pwa/manifest</code>.</p></article>
+</section>
+
+<section class="panel">
+  <h2><i class="bi bi-envelope-paper"></i> Formulario de contacto (demo de validaciones)</h2>
+  <form class="form-flex" data-validar novalidate>
+    <label>Nombre <input name="nombre" data-rule="nombre" placeholder="Ana María" required></label>
+    <label>Apellidos <input name="apellidos" data-rule="nombre" placeholder="Pérez Soto" required></label>
+    <label>Teléfono <input name="telefono" data-rule="telefono" inputmode="numeric" placeholder="88887777" required></label>
+    <label>Correo <input name="email" data-rule="email" type="email" placeholder="usuario@dominio.com" required></label>
+    <label class="full">Contraseña <input name="password" type="password" data-rule="password" placeholder="Mínimo 8, letras y números"></label>
+    <label class="full">Mensaje <textarea name="mensaje" rows="3" required></textarea></label>
+    <button class="btn btn-brand" type="submit"><i class="bi bi-send"></i> Enviar</button>
+  </form>
+</section>
+
+{% include "_herramientas.html" %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/herramientas.js') }}"></script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{
+  "prefs": {
+    "preset": "rapido",
+    "root": "1",
+    "threads": "8",
+    "mem": "4096",
+    "device": "cpu",
+    "model": "qwen2.5-coder:3b",
+    "maxtok": "-1",
+    "hwinfo": "{\"cores\":8,\"cpu\":\"Intel64 Family 6 Model 60 Stepping 3, GenuineIntel\",\"gpu\":null,\"os\":\"Windows\",\"ram_gb\":17.1}",
+    "ed_dir": "templates/bootstrap",
+    "ed_file": "templates/bootstrap/app.py",
+    "ed_recent": "[{'dir': 'templates/bootstrap', 'file': 'templates/bootstrap/app.py'}]",
+    "ed_pane_w": "1087px",
+    "ed_tree_w": "270px",
+    "sidebar_w": "399px"
+  },
+  "modelos_instalados": [
+    "starcoder2:3b",
+    "qwen2.5-coder:3b",
+    "gemma2:2b",
+    "phi3:mini",
+    "qwen2.5-coder:1.5b",
+    "tinyllama:1.1b"
+  ],
+  "ultimo_proyecto": "templates/bootstrap",
+  "ultimo_archivo": "templates/bootstrap/app.py"
+}

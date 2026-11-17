@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}Mi Proyecto Flask{% endblock %}</title>
+<link href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='vendor/bootstrap-icons.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/layout.css') }}" rel="stylesheet">
+<link rel="manifest" href="{{ url_for('api.pwa_manifest') }}">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body class="app">
+{% set menu = [
+  ('main.index', 'bi-house-door', 'Inicio'),
+  ('main.index', 'bi-grid', 'Módulos'),
+  ('main.index', 'bi-cloud-arrow-down', 'Descargas'),
+  ('main.index', 'bi-file-earmark-arrow-down', 'Exportar'),
+] %}
+
+<header class="topbar">
+  <a class="brand" href="{{ url_for('main.index') }}">
+    <i class="bi bi-rocket-takeoff-fill"></i><span>Mi Proyecto</span>
+  </a>
+  <nav class="topnav" id="topnav">
+    {% for ep, icon, label in menu %}
+      <a href="{{ url_for(ep) }}"><i class="bi {{ icon }}"></i>{{ label }}</a>
+    {% endfor %}
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i>Salir</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}"><i class="bi bi-person-circle"></i>Entrar</a>
+    {% endif %}
+  </nav>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="magicToggle" title="Barra inferior móvil" aria-label="Barra inferior">
+      <i class="bi bi-phone"></i>
+    </button>
+    <button class="icon-btn" id="themeToggle" title="Modo claro/oscuro" aria-label="Tema">
+      <i class="bi bi-moon-stars"></i>
+    </button>
+    <button class="icon-btn hamburger" id="hamburger" aria-label="Menú" aria-expanded="false">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</header>
+
+<main class="content">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in msgs %}
+      <div class="alert alert-{{ 'success' if cat == 'success' else 'warning' }} flash">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <span>&copy; {{ 2026 }} Mi Proyecto</span>
+  <span class="footer-links">
+    <a href="#"><i class="bi bi-github"></i></a>
+    <a href="#"><i class="bi bi-whatsapp"></i></a>
+    <a href="#"><i class="bi bi-envelope"></i></a>
+  </span>
+</footer>
+
+<nav class="magicbar" id="magicbar" aria-label="Navegación inferior">
+  {% for ep, icon, label in menu %}
+    <a href="{{ url_for(ep) }}" class="{{ 'active' if loop.first }}">
+      <i class="bi {{ icon }}"></i><span>{{ label }}</span>
+    </a>
+  {% endfor %}
+</nav>
+
+<script src="{{ url_for('static', filename='vendor/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+<script src="{{ url_for('static', filename='js/password-toggle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}Mi Proyecto Flask{% endblock %}</title>
+<script src="{{ url_for('static', filename='vendor/tailwind.js') }}"></script>
+<script>
+tailwind.config = {
+  darkMode: ["selector", '[data-theme="dark"]'],
+  theme: { extend: { colors: {
+    brand: { DEFAULT: "#2563eb", dark: "#1d4ed8" },
+    bone: "#f8fafc", surface: "#ffffff",
+  } } },
+};
+</script>
+<link href="{{ url_for('static', filename='vendor/bootstrap-icons.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/tw.css') }}" rel="stylesheet">
+<link rel="manifest" href="{{ url_for('api.pwa_manifest') }}">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+</head>
+<body class="min-h-screen flex flex-col bg-bone text-stone-800 dark:bg-stone-900 dark:text-stone-100">
+{% set menu = [
+  ('main.index', 'bi-house-door', 'Inicio'),
+  ('main.index', 'bi-grid', 'Módulos'),
+  ('main.index', 'bi-cloud-arrow-down', 'Descargas'),
+  ('main.index', 'bi-file-earmark-arrow-down', 'Exportar'),
+] %}
+
+<header class="sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 px-4 min-h-[60px] bg-brand text-white shadow">
+  <a class="flex items-center gap-2 font-bold text-lg" href="{{ url_for('main.index') }}">
+    <i class="bi bi-rocket-takeoff-fill"></i><span>Mi Proyecto</span>
+  </a>
+  <nav id="topnav" class="topnav flex items-center gap-1">
+    {% for ep, icon, label in menu %}
+      <a class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/20" href="{{ url_for(ep) }}">
+        <i class="bi {{ icon }}"></i>{{ label }}</a>
+    {% endfor %}
+    {% if current_user.is_authenticated %}
+      <a class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/20" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i>Salir</a>
+    {% else %}
+      <a class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/20" href="{{ url_for('auth.login') }}"><i class="bi bi-person-circle"></i>Entrar</a>
+    {% endif %}
+  </nav>
+  <div class="flex items-center gap-1">
+    <button id="magicToggle" class="w-10 h-10 flex items-center justify-center rounded-lg bg-white/15 hover:bg-white/30" title="Barra inferior móvil"><i class="bi bi-phone"></i></button>
+    <button id="themeToggle" class="w-10 h-10 flex items-center justify-center rounded-lg bg-white/15 hover:bg-white/30" title="Modo claro/oscuro"><i class="bi bi-moon-stars"></i></button>
+    <button id="hamburger" class="hamburger w-10 h-10 items-center justify-center rounded-lg bg-white/15 hover:bg-white/30" aria-label="Menú" aria-expanded="false"><i class="bi bi-list"></i></button>
+  </div>
+</header>
+
+<main class="flex-1 flex flex-col gap-6 w-full max-w-6xl mx-auto px-3 sm:px-4 py-6">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in msgs %}
+      <div class="rounded-lg px-4 py-3 {{ 'bg-green-100 text-green-800' if cat == 'success' else 'bg-amber-100 text-amber-800' }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm border-t border-stone-300 bg-surface text-stone-500 dark:bg-stone-800 dark:border-stone-700">
+  <span>&copy; 2026 Mi Proyecto</span>
+  <span class="flex gap-3 text-lg">
+    <a href="#"><i class="bi bi-github"></i></a>
+    <a href="#"><i class="bi bi-whatsapp"></i></a>
+    <a href="#"><i class="bi bi-envelope"></i></a>
+  </span>
+</footer>
+
+<nav id="magicbar" class="magicbar fixed inset-x-0 bottom-0 z-50 justify-around items-center h-16 border-t border-stone-300 bg-surface shadow-lg dark:bg-stone-800 dark:border-stone-700">
+  {% for ep, icon, label in menu %}
+    <a href="{{ url_for(ep) }}" class="flex-1 flex flex-col items-center gap-0.5 text-xs text-stone-500 hover:text-brand">
+      <i class="bi {{ icon }} text-xl"></i><span>{{ label }}</span>
+    </a>
+  {% endfor %}
+</nav>
+
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+<script src="{{ url_for('static', filename='js/password-toggle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% comment %}Sección de herramientas: QR, gráficos y PWA. Se incluye desde index.html.{% endcomment %}
+<section class="panel">
+  <h2><i class="bi bi-qr-code"></i> Código QR</h2>
+  <div class="form-flex">
+    <label class="full">Texto o enlace
+      <input id="qrTexto" placeholder="https://tusitio.com o cualquier texto"></label>
+    <button class="btn btn-brand" type="button" onclick="descargarQR('png')">
+      <i class="bi bi-filetype-png"></i> QR PNG</button>
+    <button class="btn btn-outline-brand" type="button" onclick="descargarQR('svg')">
+      <i class="bi bi-filetype-svg"></i> QR SVG</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><i class="bi bi-bar-chart"></i> Gráficos</h2>
+  <div class="form-flex">
+    <label>Tipo
+      <select id="grafTipo" class="form-select">
+        <option value="barras">Barras</option>
+        <option value="linea">Líneas</option>
+        <option value="pastel">Pastel</option>
+      </select></label>
+    <label>Título <input id="grafTitulo" placeholder="Ventas"></label>
+    <label class="full">Etiquetas <input id="grafEtiquetas" placeholder="Ene,Feb,Mar"></label>
+    <label class="full">Valores <input id="grafValores" placeholder="10,20,15"></label>
+    <label>Formato
+      <select id="grafFormato" class="form-select">
+        <option value="png">PNG</option>
+        <option value="svg">SVG</option>
+      </select></label>
+    <button class="btn btn-brand" type="button" onclick="descargarGrafico()">
+      <i class="bi bi-download"></i> Generar gráfico</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><i class="bi bi-phone"></i> PWA</h2>
+  <p class="small">Manifiesto con todos los permisos que Android permite solicitar:</p>
+  <a class="btn btn-outline-brand" href="{{ url_for('api.pwa_manifest') }}" target="_blank" rel="noopener">
+    <i class="bi bi-file-earmark-code"></i> Ver manifest.json</a>
+  <p class="small text-secondary mt-2">Guía completa en <code>docs/PWA.md</code>.</p>
+</section>

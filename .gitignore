@@ -1,0 +1,15 @@
+.venv/
+.venv312/
+__pycache__/
+*.pyc
+uploads/
+workspace/exports/
+workspace/downloads/
+workspace/uploads/
+workspace/repos/
+workspace/templates/
+saved_workspaces/
+modelos/
+*.db
+server.log
+catalog_cache.json
