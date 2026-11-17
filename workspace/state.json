@@ -10,7 +10,7 @@
     "hwinfo": "{\"cores\":8,\"cpu\":\"Intel64 Family 6 Model 60 Stepping 3, GenuineIntel\",\"gpu\":null,\"os\":\"Windows\",\"ram_gb\":17.1}",
     "ed_dir": "templates/bootstrap",
     "ed_file": "templates/bootstrap/app.py",
-    "ed_recent": "[{'dir': 'templates/bootstrap', 'file': None}]",
+    "ed_recent": "[{'dir': 'templates/bootstrap', 'file': 'templates/bootstrap/app.py'}]",
     "ed_pane_w": "987px",
     "ed_tree_w": "270px",
     "sidebar_w": "399px"

@@ -1,8 +1,8 @@
 async function loadModels() {
   const sel = $("modelSelect"), base = $("newBase"), list = $("modelList");
+  const motor = typeof currentBackend === "function" ? currentBackend() : "ollama";
   let models;
   try {
-    const motor = typeof currentBackend === "function" ? currentBackend() : "ollama";
     ({ models } = await api("/api/models?backend=" + motor));
   } catch (e) {
     list.innerHTML = `<div class="list-group-item bg-transparent text-warning small">${esc(msgOllama(e))}</div>`;
