@@ -5,6 +5,7 @@ import uuid
 from flask import Blueprint, Response, jsonify, request
 from werkzeug.utils import secure_filename
 
+import backends
 import catalog
 import ollama_client
 import scaffold
@@ -22,17 +23,23 @@ def api_status():
     import file_ops
 
     try:
-        data = ollama_client.status()
+        data = ollama_client.ensure_running()
     except Exception as e:
         data = {"ok": False, "error": str(e), "host": OLLAMA_HOST}
     data["workspace"] = file_ops.WORKSPACE_DIR
     return jsonify(data)
 
 
+@bp.get("/api/backends")
+def api_backends():
+    return jsonify({"backends": backends.list_backends()})
+
+
 @bp.get("/api/models")
 def api_models():
+    motor = request.args.get("backend", "ollama")
     try:
-        return jsonify({"models": ollama_client.list_models()})
+        return jsonify({"models": backends.list_models(motor)})
     except Exception as e:
         return err(e, 502)
 

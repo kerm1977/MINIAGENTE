@@ -92,9 +92,11 @@ async function send(fixedText) {
     else if ($("genDevice").value === "cpu") options.num_thread = preset === "rapido" ? 8 : 4;
     const r = await fetch("/api/chat", { ...post({
       model,
+      backend: typeof currentBackend === "function" ? currentBackend() : "ollama",
       messages: [...messages, { role: "user", content: text }],
       session_id: sid,
       root_mode: $("rootMode").checked,
+      editor: typeof editorContexto === "function" ? editorContexto() : null,
       options,
     }), signal: abortCtrl.signal });
     messages.push({ role: "user", content: text });
@@ -411,8 +413,10 @@ async function analyzeHw() {
 $("genPanel").addEventListener("change", recommendModels);
 
 loadStatus();
-loadPrefs().then(() => {
-  wireGenPrefs(); loadModels();
+loadPrefs().then(async () => {
+  wireGenPrefs();
+  if (typeof loadBackends === "function") { await loadBackends(); wireBackendSelect(); }
+  loadModels();
   if (_prefs.hwinfo) { try { hwCache = JSON.parse(_prefs.hwinfo); } catch {} }
   restoreEditor();
 });

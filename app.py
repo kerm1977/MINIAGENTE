@@ -3,6 +3,7 @@ import os
 
 from flask import Flask, Response, jsonify, render_template, request, stream_with_context
 
+import backends
 import db
 import file_ops
 import ollama_client
@@ -38,10 +39,10 @@ def _append_delta(buf, payload):
         buf.append(msg["content"])
 
 
-def _chat_rounds(model, messages, root_mode, holder, options=None):
+def _chat_rounds(backend, model, messages, root_mode, holder, options=None):
     for _ in range(MAX_TOOL_ROUNDS):
         buf = []
-        for line in ollama_client.chat_stream(model, messages, options):
+        for line in backends.chat_stream(backend, model, messages, options):
             payload = ollama_client.parse_ndjson_line(line)
             if payload:
                 _append_delta(buf, payload)
@@ -84,15 +85,33 @@ def api_chat():
             "mkdir, delete y 'run'. No pidas permisos ni digas que no puedes "
             "acceder: ejecuta las herramientas."
         )
+    ed = data.get("editor") or {}
+    if ed.get("path"):
+        content = ed.get("content") or ""
+        truncado = ""
+        if len(content) > 30000:
+            content = content[:30000]
+            truncado = "\n[...truncado por tamaño]"
+        system += (
+            f"\n\nEl usuario tiene abierto en el editor el archivo "
+            f"'{ed['path']}' (proyecto: {ed.get('dir') or 'ninguno'}). "
+            "Este es su contenido actual, incluidos cambios sin guardar:\n"
+            f"```\n{content}{truncado}\n```\n"
+            "Cuando el usuario pida revisar 'el código del editor' o similar, "
+            "refiere a este archivo sin pedir que te lo peguen."
+        )
     messages = [{"role": "system", "content": system}]
     messages += data.get("messages", [])[-40:]
     session_id = data.get("session_id")
     options = data.get("options") or None
     holder = {"reply": ""}
 
+    backend = data.get("backend", "ollama").strip() or "ollama"
+
     def gen():
         try:
-            yield from _chat_rounds(model, messages, root_mode, holder, options)
+            yield from _chat_rounds(backend, model, messages, root_mode,
+                                   holder, options)
             if session_id and messages[-1]["role"] == "user":
                 db.add_message(session_id, "user", messages[-1]["content"])
             if session_id and holder["reply"]:
@@ -105,4 +124,5 @@ def api_chat():
 
 
 if __name__ == "__main__":
+    ollama_client.ensure_running()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 7860)))

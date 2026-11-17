@@ -2,6 +2,13 @@ import os
 
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(os.path.dirname(__file__), "modelos", "gguf"))
+MODELS_DIR = os.environ.get("OLLAMA_MODELS", os.path.dirname(UPLOAD_DIR))
+OLLAMA_EXE = os.environ.get(
+    "OLLAMA_EXE",
+    os.path.join(
+        os.environ.get("LOCALAPPDATA", ""), "Programs", "Ollama", "ollama.exe"
+    ),
+)
 ALLOWED_MODEL_EXT = {".gguf"}
 
 SYSTEM_PROMPT = (

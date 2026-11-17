@@ -42,7 +42,15 @@ function msgOllama(e) {
 
 async function loadStatus() {
   const d = $("statusDot");
+  const motor = typeof currentBackend === "function" ? currentBackend() : "ollama";
   try {
+    if (motor !== "ollama") {
+      const { backends: items } = await api("/api/backends");
+      const b = (items || []).find((x) => x.id === motor) || {};
+      d.textContent = b.ok ? `${motor} en línea` : `${motor} apagado`;
+      d.className = "badge " + (b.ok ? "bg-success" : "bg-danger");
+      return;
+    }
     const s = await api("/api/status");
     d.textContent = s.ok ? `Ollama ${s.version}` : "Ollama desconectado";
     d.className = "badge " + (s.ok ? "bg-success" : "bg-danger");
@@ -56,7 +64,8 @@ async function loadModels() {
   const sel = $("modelSelect"), base = $("newBase"), list = $("modelList");
   let models;
   try {
-    ({ models } = await api("/api/models"));
+    const motor = typeof currentBackend === "function" ? currentBackend() : "ollama";
+    ({ models } = await api("/api/models?backend=" + motor));
   } catch (e) {
     list.innerHTML = `<div class="list-group-item bg-transparent text-warning small">${esc(msgOllama(e))}</div>`;
     return;
@@ -73,7 +82,8 @@ async function loadModels() {
     item.className = "list-group-item bg-transparent d-flex justify-content-between align-items-center";
     item.innerHTML = `<span>${esc(m.name)} ${esEmbed ? '<span class="badge bg-warning-subtle text-warning-emphasis small">embeddings, no chat</span> ' : ""}<small class="text-secondary">${(m.size / 1e9).toFixed(1)}GB</small></span>` +
       `<button class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-x"></i></button>`;
-    item.querySelector("button").onclick = async () => {
+    if (motor !== "ollama") item.querySelector("button").remove();
+    else item.querySelector("button").onclick = async () => {
       if (!(await confirmModal("Eliminar modelo", `¿Eliminar ${m.name} de los modelos instalados?`))) return;
       await api("/api/models/" + encodeURIComponent(m.name), { method: "DELETE" });
       loadModels();
@@ -956,6 +966,12 @@ async function openFile(path) {
       e.classList.toggle("text-primary", e.dataset.path === path));
     refreshEditorView();
   } catch (e) { sideMsg("Error: " + e.message); }
+}
+
+// Contexto del editor para el chat: archivo abierto y su contenido actual.
+function editorContexto() {
+  if (!edFile) return null;
+  return { path: edFile, dir: edDir, content: edText() };
 }
 
 async function saveEditor(silent) {
