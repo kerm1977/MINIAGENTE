@@ -51,6 +51,14 @@ async function loadServerErrors() {
   } catch (e) { /* el servidor aún no expone /api/errors */ }
 }
 
+function copyConsola() {
+  const txt = _errores.map((e) => `[${e.ts}] ${e.origen}: ${e.detalle}`).join("\n") || "(sin errores)";
+  navigator.clipboard.writeText(txt).then(
+    () => sideMsg("Registros copiados al portapapeles"),
+    () => sideMsg("No se pudo copiar"),
+  );
+}
+
 function clearConsola() {
   _errores.length = 0;
   renderConsola();

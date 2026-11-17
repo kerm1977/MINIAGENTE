@@ -248,4 +248,11 @@ def api_chat():
 
 if __name__ == "__main__":
     ollama_client.ensure_running()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 7860)))
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", 7860))
+    try:
+        from waitress import serve
+
+        serve(app, host=host, port=port, threads=8)
+    except ImportError:
+        app.run(host=host, port=port)
